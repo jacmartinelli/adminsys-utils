@@ -117,10 +117,10 @@ service --status-all | cut -d ' ' -f 6 | while read -r daemon; do
     echo "?"
   fi
 
-  if ps -eaf | grep $daemon | grep -vq grep; then
-    pid=`ps -eaf | grep $daemon | grep -v grep | tr -s " " | cut -d " " -f 2 | tr '\n' ' '`
+  if ps -eaf | grep "$daemon" | grep -vq grep; then
+    pid=`ps -eaf | grep "$daemon" | grep -v grep | tr -s " " | cut -d " " -f 2 | tr '\n' ' '`
     pid="${GREEN}${pid}${NC}"
-    ports=`sudo netstat -peanut | grep "$pid" | tr -s " " | cut -d " " -f 1,4 | sed 's/^/    /'`
+    ports=`sudo netstat -peanut | grep -F "$pid" | tr -s " " | cut -d " " -f 1,4 | sed 's/^/    /'`
   else
     pid="${RED}non launched${NC}"
     ports="    none"
