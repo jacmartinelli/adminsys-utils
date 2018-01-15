@@ -1,9 +1,24 @@
 #!/bin/bash
 
+######################
+# Set up some colors #
+######################
+
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 NC='\033[0m' # No Color
 
+# Install some softwares prerequisits
+
+# Install iotop for IO disk checking
+if ! command -v iotop > /dev/null; then
+  sudo apt-get install iotop -y
+fi
+
+# Install iotop for IO disk checking
+if ! command -v screen > /dev/null; then
+  sudo apt-get install screen -y
+fi
 
 echo "Beginning of the script !"
 
@@ -102,6 +117,12 @@ echo "Memory free: "`free | grep Mem | awk '{print $3/$2 * 100.0}'`"%"
 echo "Disk information: "
 sudo iotop -b --iter=1 | grep "Actual DISK READ" | grep -v grep | tr "|" "\n" | sed -e 's/^[[:space:]]*//' | sed 's/.*/ - &/'
 
-# Cpu warning
+###############
+# Cpu warning #
+###############
 
-sudo nohup lxterminal -e ./cpuwarning.sh 1 &
+# Kill previous cpu warning task if exists
+screen -S cpuwarning -X quit > /dev/null
+
+# Restart one
+screen -S cpuwarning -dm ./cpuwarning.sh 80

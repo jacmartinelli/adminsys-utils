@@ -6,6 +6,12 @@ This is the sample of the school project we need to do to simpligy adminsys life
 - [sysadmin.sh](scripts/sysadmin.sh) : permet to check the system or a specific program, and install it if needed
 - [cpuwarning.sh](scripts/cpuwarning.sh) : permet to launch a process that warn if the cpu usage is too high
 
+CPU warning instance is launched using the command **screen** with the name **cpuwarning**. To reattach to the tab, just do :
+
+```bash
+screen -r cpuwarning
+```
+
 > Those scripts were tested only on Ubuntu 16.04
 
 A [Vagrantfile](https://www.vagrantup.com) is available to simplify test of this script (for [Virtualbox](https://www.virtualbox.org/) provider).
