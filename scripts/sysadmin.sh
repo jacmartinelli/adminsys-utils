@@ -1,14 +1,21 @@
 #!/bin/bash
 
-######################
-# Set up some colors #
-######################
+####################################
+# Set up some colors and constants #
+####################################
 
-RED='\033[0;31m'
-GREEN='\033[0;32m'
+RED='\033[0;91m'
+GREEN='\033[0;92m'
+BLUE='\033[0;94m'
 NC='\033[0m' # No Color
 
-# Install some softwares prerequisits
+VALUE="$BLUE"
+
+CPU_LIMIT="80"
+
+#######################################
+# Install some softwares prerequisits #
+#######################################
 
 # Install iotop for IO disk checking
 if ! command -v iotop > /dev/null; then
@@ -20,7 +27,11 @@ if ! command -v screen > /dev/null; then
   sudo apt-get install screen -y
 fi
 
-echo "Beginning of the script !"
+#########################
+# Define some functions #
+#########################
+
+# Check if a service exists
 
 service_exists () {
   if service --status-all | grep -Fq "$1"; then
@@ -29,6 +40,8 @@ service_exists () {
     return 1
   fi
 }
+
+# Ask to a program installation
 
 to_install () {
   while true; do
@@ -40,6 +53,36 @@ to_install () {
     esac
   done
 }
+
+# Display a title framed
+
+title () {
+  letter_number=${#1}
+  new_size=$((letter_number + 4))
+  echo ""
+  printf '%'$new_size's\n' | tr ' ' -
+  echo "| $1 |"
+  printf '%'$new_size's\n' | tr ' ' -
+  echo ""
+}
+
+# Display key - value with colors
+
+disp() {
+  printf "${1}${VALUE}"
+  echo -e "${@:2}"
+  printf "${NC}"
+}
+
+############################
+# Real start of the script #
+############################
+
+title "Beginning of the script !"
+
+############################
+# Check services existance #
+############################
 
 if service_exists 'bind9'; then
   echo "- DNS server is installed"
@@ -59,10 +102,11 @@ elif to_install "-> Do you wish to install a LDAP server ? "; then
   sudo apt-get install slapd ldap-utils -y > /dev/null
 fi
 
+###################
+# Service listing #
+###################
 
-# Service listing :
-
-echo "Daemons presents"
+title "Daemons presents"
 
 service --status-all | cut -d ' ' -f 6 | while read -r daemon; do
   #echo ">$daemon<"
@@ -82,47 +126,58 @@ service --status-all | cut -d ' ' -f 6 | while read -r daemon; do
     ports="    none"
   fi
 
-  echo "  name: $daemon"
+  disp "  name: " "$daemon"
   printf "  pid: $pid\n"
   echo "  IP/ports linked:"
   echo "$ports"
 
 done
 
-# System config
+#################
+# System config #
+#################
 
-echo "------------------------"
-echo "| Machine informations |"
-echo "------------------------"
+title "Machine informations"
 
-echo "Distribution : "`cat /etc/*-release | grep "DISTRIB_ID=" | cut -d"=" -f2`
-echo "Distribution version : "`cat /etc/*-release | grep "DISTRIB_RELEASE=" | cut -d"=" -f2`
-echo "Distribution codename : "`cat /etc/*-release | grep "DISTRIB_CODENAME=" | cut -d"=" -f2`
-echo "Kernel version : "`uname -r`
-echo "Architecture : "`uname -m`
+disp "Distribution : " `cat /etc/*-release | grep "DISTRIB_ID=" | cut -d"=" -f2`
+disp "Distribution version : " `cat /etc/*-release | grep "DISTRIB_RELEASE=" | cut -d"=" -f2`
+disp "Distribution codename : " `cat /etc/*-release | grep "DISTRIB_CODENAME=" | cut -d"=" -f2`
+disp "Kernel version : " `uname -r`
+disp "Architecture : " `uname -m`
 echo "Hardware"
-echo "  - CPU number : "`nproc`
-echo "  - Total ram : "`cat /proc/meminfo | grep "MemTotal:" | tr -s " " | cut -d" " -f2,3`
+disp "  - CPU number : " `nproc`
+disp "  - Total ram : " `cat /proc/meminfo | grep "MemTotal:" | tr -s " " | cut -d" " -f2,3`
 
+#########################
+# Current machine state #
+#########################
 
-# Current machine state
+title "Machine current state"
 
-echo "-------------------------"
-echo "| Machine current state |"
-echo "-------------------------"
-
-echo "Current cpu usage: "`grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage "%"}'`
-echo "Load average: "`uptime | cut -d ',' -f3-8 | cut -d ':' -f2 | sed -e 's/^[[:space:]]*//'`
-echo "Memory free: "`free | grep Mem | awk '{print $3/$2 * 100.0}'`"%"
+disp "Current cpu usage: " `grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage "%"}'`
+disp "Load average: " `uptime | cut -d ',' -f3-8 | cut -d ':' -f2 | sed -e 's/^[[:space:]]*//'`
+disp "Memory free: " `free | grep Mem | awk '{print $3/$2 * 100.0}'`"%"
 echo "Disk information: "
-sudo iotop -b --iter=1 | grep "Actual DISK READ" | grep -v grep | tr "|" "\n" | sed -e 's/^[[:space:]]*//' | sed 's/.*/ - &/'
+disp " - write : " `sudo iotop -b --iter=1 | grep "Actual DISK READ" | grep -v grep | tr "|" "\n" | sed -e 's/^[[:space:]]*//' | grep READ | tr -s " " | cut -d" " -f 4-`
+disp " - read : " `sudo iotop -b --iter=1 | grep "Actual DISK READ" | grep -v grep | tr "|" "\n" | sed -e 's/^[[:space:]]*//' | grep READ | tr -s " " | cut -d" " -f 4-`
 
 ###############
 # Cpu warning #
 ###############
 
+title "CPU monitoring"
+
+disp "CPU limit is set to " "${CPU_LIMIT}%"
+disp "To rattach the cpu monitoring process, just type : " "screen -r cpuwarning"
+
 # Kill previous cpu warning task if exists
 screen -S cpuwarning -X quit > /dev/null
 
 # Restart one
-screen -S cpuwarning -dm ./cpuwarning.sh 80
+screen -S cpuwarning -dm ./cpuwarning.sh $CPU_LIMIT
+
+##################
+# End of program #
+##################
+
+title "End of program !"
