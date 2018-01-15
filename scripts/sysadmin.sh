@@ -109,7 +109,6 @@ fi
 title "Daemons presents"
 
 service --status-all | cut -d ' ' -f 6 | while read -r daemon; do
-  #echo ">$daemon<"
   if sudo apt-cache show $daemon 2&>1; then
     type=`sudo apt-cache show $daemon | grep '^Section' | cut -d ' ' -f 2`
     echo $type
