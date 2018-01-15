@@ -78,7 +78,7 @@ disp() {
 # Real start of the script #
 ############################
 
-title "Beginning of the script !"
+title "Beginning of the script"
 
 ############################
 # Check services existance #
@@ -180,4 +180,4 @@ screen -S cpuwarning -dm ./cpuwarning.sh $CPU_LIMIT
 # End of program #
 ##################
 
-title "End of program !"
+title "End of program"
