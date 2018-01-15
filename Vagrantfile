@@ -7,4 +7,7 @@ Vagrant.configure("2") do |config|
 
   config.vm.synced_folder "scripts/", "/home/ubuntu/scripts"
 
+  config.vm.provision "shell",
+    inline: "sudo apt-get update && DEBIAN_FRONTEND=noninteractive sudo apt-get dist-upgrade -y"
+
 end
