@@ -20,4 +20,4 @@ vagrant up
 vagrant ssh
 ```
 
-**Scripts folder** is available in **default user home** : **/home/ubuntu/scripts**
+**Scripts folder** is available in **default user home** : **/home/vagrant/scripts**
