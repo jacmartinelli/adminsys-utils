@@ -12,8 +12,8 @@ Options (only choose one):
                                   configure it
   -a / --all                      Show all services, and permit to configure them
 
-Other options
-  -h                              Display this message"""
+Other options:
+  -h / --help                     Display this message"""
 }
 
 action=""
