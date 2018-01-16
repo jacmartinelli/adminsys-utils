@@ -82,28 +82,6 @@ disp() {
 
 title "Beginning of the script"
 
-############################
-# Check services existance #
-############################
-
-if service_exists 'bind9'; then
-  echo "- DNS server is installed"
-elif to_install "-> Do you wish to install a DNS server ? "; then
-  sudo apt-get install bind9 bind9utils bind9-doc -y > /dev/null
-fi
-
-if service_exists 'isc-dhcp-server'; then
-  echo "- DHCP Server is installed"
-elif to_install "-> Do you wish to install a DHCP server ? "; then
-  sudo apt-get install isc-dhcp-server -y
-fi
-
-if service_exists 'slapd'; then
-  echo "- LDAP Server is installed"
-elif to_install "-> Do you wish to install a LDAP server ? "; then
-  sudo apt-get install slapd ldap-utils -y > /dev/null
-fi
-
 ###################
 # Service listing #
 ###################
