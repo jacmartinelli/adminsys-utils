@@ -1,5 +1,43 @@
 #!/bin/bash
 
+########################
+# Parse option program #
+########################
+
+usage() {
+echo """usage: $(basename $BASH_SOURCE) [-a | -s <service_name>] [-h]
+
+Options (only choose one):
+  -s / --service <service_name>   Permet to check a service existance, and / or
+                                  configure it
+  -a / --all                      Show all services, and permit to configure them
+
+Other options
+  -h                              Display this message"""
+}
+
+action=""
+
+while true ; do
+    case "$1" in
+        -h) usage;
+            exit 0;;
+         -a|--all) action="all";
+                shift;;
+         -s|--service) action="service"
+                service="${2}"
+                shift 1;
+                shift 1;;
+         *) shift; break;;
+    esac
+done
+
+if [ -z "${action}" ] || [[ $action == "service" && -z "${service}" ]]; then
+   usage
+   exit 0
+fi
+
+
 ####################################
 # Set up some colors and constants #
 ####################################
@@ -82,83 +120,87 @@ disp() {
 
 title "Beginning of the script"
 
-###################
-# Service listing #
-###################
+if [ $action == "all" ]; then
 
-title "Daemons presents"
+  ###################
+  # Service listing #
+  ###################
 
-service --status-all | cut -d ' ' -f 6 | while read -r daemon; do
-  if sudo apt-cache show $daemon 2&>1; then
-    type=`sudo apt-cache show $daemon | grep '^Section' | cut -d ' ' -f 2`
-    echo $type
-  else
-    echo "?"
-  fi
+  title "Daemons presents"
 
-  ports=""
+  service --status-all | cut -d ' ' -f 6 | while read -r daemon; do
+    if sudo apt-cache show $daemon 2&>1; then
+      type=`sudo apt-cache show $daemon | grep '^Section' | cut -d ' ' -f 2`
+      echo $type
+    else
+      echo "?"
+    fi
 
-  if ps -eaf | grep "$daemon" | grep -vq grep; then
-    pid=`ps -eaf | grep "$daemon" | grep -v grep | tr -s " " | cut -d " " -f 2 | tr '\n' ' '`
-    pid="${GREEN}${pid}${NC}"
-    ports=`sudo netstat -peanut | grep -F "$pid" | tr -s " " | cut -d " " -f 1,4 | sed 's/^/    /'`
-  else
-    pid="${RED}non launched${NC}"
-  fi
+    ports=""
 
-  if [ -z "$ports" ];then
-    ports="    none"
-  fi
+    if ps -eaf | grep "$daemon" | grep -vq grep; then
+      pid=`ps -eaf | grep "$daemon" | grep -v grep | tr -s " " | cut -d " " -f 2 | tr '\n' ' '`
+      pid="${GREEN}${pid}${NC}"
+      ports=`sudo netstat -peanut | grep -F "$pid" | tr -s " " | cut -d " " -f 1,4 | sed 's/^/    /'`
+    else
+      pid="${RED}non launched${NC}"
+    fi
 
-  disp "  name: " "$daemon"
-  printf "  pid: $pid\n"
-  echo "  IP/ports linked:"
-  echo "$ports"
+    if [ -z "$ports" ];then
+      ports="    none"
+    fi
 
-done
+    disp "  name: " "$daemon"
+    printf "  pid: $pid\n"
+    echo "  IP/ports linked:"
+    echo "$ports"
 
-#################
-# System config #
-#################
+  done
 
-title "Machine informations"
+  #################
+  # System config #
+  #################
 
-disp "Distribution : " `cat /etc/*-release | grep "DISTRIB_ID=" | cut -d"=" -f2`
-disp "Distribution version : " `cat /etc/*-release | grep "DISTRIB_RELEASE=" | cut -d"=" -f2`
-disp "Distribution codename : " `cat /etc/*-release | grep "DISTRIB_CODENAME=" | cut -d"=" -f2`
-disp "Kernel version : " `uname -r`
-disp "Architecture : " `uname -m`
-echo "Hardware"
-disp "  - CPU number : " `nproc`
-disp "  - Total ram : " `cat /proc/meminfo | grep "MemTotal:" | tr -s " " | cut -d" " -f2,3`
+  title "Machine informations"
 
-#########################
-# Current machine state #
-#########################
+  disp "Distribution : " `cat /etc/*-release | grep "DISTRIB_ID=" | cut -d"=" -f2`
+  disp "Distribution version : " `cat /etc/*-release | grep "DISTRIB_RELEASE=" | cut -d"=" -f2`
+  disp "Distribution codename : " `cat /etc/*-release | grep "DISTRIB_CODENAME=" | cut -d"=" -f2`
+  disp "Kernel version : " `uname -r`
+  disp "Architecture : " `uname -m`
+  echo "Hardware"
+  disp "  - CPU number : " `nproc`
+  disp "  - Total ram : " `cat /proc/meminfo | grep "MemTotal:" | tr -s " " | cut -d" " -f2,3`
 
-title "Machine current state"
+  #########################
+  # Current machine state #
+  #########################
 
-disp "Current cpu usage: " `grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage "%"}'`
-disp "Load average: " `uptime | cut -d ',' -f3-8 | cut -d ':' -f2 | sed -e 's/^[[:space:]]*//'`
-disp "Memory free: " `free | grep Mem | awk '{print $3/$2 * 100.0}'`"%"
-echo "Disk information: "
-disp " - write : " `sudo iotop -b --iter=1 | grep "Actual DISK READ" | grep -v grep | tr "|" "\n" | sed -e 's/^[[:space:]]*//' | grep READ | tr -s " " | cut -d" " -f 4-`
-disp " - read : " `sudo iotop -b --iter=1 | grep "Actual DISK READ" | grep -v grep | tr "|" "\n" | sed -e 's/^[[:space:]]*//' | grep READ | tr -s " " | cut -d" " -f 4-`
+  title "Machine current state"
 
-###############
-# Cpu warning #
-###############
+  disp "Current cpu usage: " `grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage "%"}'`
+  disp "Load average: " `uptime | cut -d ',' -f3-8 | cut -d ':' -f2 | sed -e 's/^[[:space:]]*//'`
+  disp "Memory free: " `free | grep Mem | awk '{print $3/$2 * 100.0}'`"%"
+  echo "Disk information: "
+  disp " - write : " `sudo iotop -b --iter=1 | grep "Actual DISK READ" | grep -v grep | tr "|" "\n" | sed -e 's/^[[:space:]]*//' | grep READ | tr -s " " | cut -d" " -f 4-`
+  disp " - read : " `sudo iotop -b --iter=1 | grep "Actual DISK READ" | grep -v grep | tr "|" "\n" | sed -e 's/^[[:space:]]*//' | grep READ | tr -s " " | cut -d" " -f 4-`
 
-title "CPU monitoring"
+  ###############
+  # Cpu warning #
+  ###############
 
-disp "CPU limit is set to " "${CPU_LIMIT}%"
-disp "To rattach the cpu monitoring process, just type : " "screen -r cpuwarning"
+  title "CPU monitoring"
 
-# Kill previous cpu warning task if exists
-screen -S cpuwarning -X quit > /dev/null
+  disp "CPU limit is set to " "${CPU_LIMIT}%"
+  disp "To rattach the cpu monitoring process, just type : " "screen -r cpuwarning"
 
-# Restart one
-screen -S cpuwarning -dm ./cpuwarning.sh $CPU_LIMIT
+  # Kill previous cpu warning task if exists
+  screen -S cpuwarning -X quit > /dev/null
+
+  # Restart one
+  screen -S cpuwarning -dm ./cpuwarning.sh $CPU_LIMIT
+
+fi
 
 ##################
 # End of program #
