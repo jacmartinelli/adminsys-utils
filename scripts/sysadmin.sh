@@ -19,12 +19,14 @@ CPU_LIMIT="80"
 
 # Install iotop for IO disk checking
 if ! command -v iotop > /dev/null; then
-  sudo apt-get install iotop -y
+  echo "Installing htop"
+  sudo apt-get install iotop -y > /dev/null
 fi
 
-# Install iotop for IO disk checking
+# Install iotop for background launch of process
 if ! command -v screen > /dev/null; then
-  sudo apt-get install screen -y
+  echo "Installing screen"
+  sudo apt-get install screen -y > /dev/null
 fi
 
 #########################
