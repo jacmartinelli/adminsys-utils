@@ -23,8 +23,6 @@ action=""
 
 while true ; do
     case "$1" in
-        -h) usage;
-            exit 0;;
          -a|--all) action="all";
                 shift;;
          -st|--stats) action="stats";
