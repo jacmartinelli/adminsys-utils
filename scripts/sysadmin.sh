@@ -5,12 +5,15 @@
 ########################
 
 usage() {
-echo """usage: $(basename $BASH_SOURCE) [-a | -s <service_name>] [-h]
+echo """usage: $(basename $BASH_SOURCE) [-a | -st | -s <service_name>] [-h]
 
 Options (only choose one):
   -s / --service <service_name>   Permet to check a service existance, and / or
                                   configure it
-  -a / --all                      Show all services, and permit to configure them
+  -st / --stats                   Show some system stats, and start cpu warning
+                                  monitoring
+  -a / --all                      Show all services, and permit to configure
+                                  them
 
 Other options:
   -h / --help                     Display this message"""
@@ -23,6 +26,8 @@ while true ; do
         -h) usage;
             exit 0;;
          -a|--all) action="all";
+                shift;;
+         -st|--stats) action="stats";
                 shift;;
          -s|--service) action="service"
                 service="${2}"
@@ -156,6 +161,8 @@ if [ $action == "all" ]; then
     echo "$ports"
 
   done
+
+elif [ $action == "stats" ]; then
 
   #################
   # System config #
