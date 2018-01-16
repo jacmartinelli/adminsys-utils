@@ -1,3 +1,4 @@
 *.log
 nohup.out
 1
+.vagrant/
