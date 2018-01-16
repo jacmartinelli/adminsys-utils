@@ -12,9 +12,13 @@ CPU warning instance is launched using the command **screen** with the name **cp
 
 ```bash
 screen -r cpuwarning
+
 ```
+(To quit without destroying the session, press CTRL-A then CTRL-D)
 
 > Those scripts were tested only on Ubuntu 16.04
+
+## Vagrant
 
 A [Vagrantfile](Vagrantfile) for [Vagrant](https://www.vagrantup.com) is available to simplify test of this script (for [Virtualbox](https://www.virtualbox.org/) provider).
 

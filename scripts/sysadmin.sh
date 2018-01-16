@@ -199,7 +199,8 @@ elif [ $action == "stats" ]; then
   title "CPU monitoring"
 
   disp "CPU limit is set to " "${CPU_LIMIT}%"
-  disp "To rattach the cpu monitoring process, just type : " "screen -r cpuwarning"
+  disp "To rattach the cpu monitoring process, do : " "screen -r cpuwarning"
+  disp "To quit the session without killing it : " "CTRL+A then CTRL+D"
 
   # Kill previous cpu warning task if exists
   screen -S cpuwarning -X quit > /dev/null
