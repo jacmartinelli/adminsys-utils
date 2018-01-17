@@ -178,10 +178,10 @@ proceed_service() {
       echo "Package '$service' not found! Install? (y/n)"
       if to_install; then
         if ! sudo apt-get install "$service" -y &> /dev/null; then
-          disp "Failed to install package " "$service"
+          printf "${RED}Failed to install package $service ${NC}\n"
           skip="true"
         else
-          echo "Package sucessfully installed"
+          printf "${GREEN}Package sucessfully installed${NC}\n"
         fi
       else
         skip="true"
@@ -192,7 +192,7 @@ proceed_service() {
       echo "Here is some facts about this service :"
       getServiceFacts "$service"
     else
-      echo "No service found with this name .."
+      printf "${RED}No service found with this name ..${NC}\n"
     fi
 
     if [ ! $skip == "true" ]; then
@@ -203,7 +203,7 @@ proceed_service() {
           $EDITOR `cat /var/lib/dpkg/info/$service.conffiles`
         fi
       else
-        echo "No configurations files found for this package .."
+        printf "${RED}No configurations files found for this package ..${NC}\n"
       fi
 
     fi
