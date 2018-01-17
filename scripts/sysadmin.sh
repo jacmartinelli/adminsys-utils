@@ -103,7 +103,7 @@ service_exists () {
 
 # Ask to a program installation
 
-to_install () {
+ask_confirmation () {
   while true; do
     read -p "> $1" yn
     case $yn in
@@ -190,7 +190,7 @@ proceed_service() {
 
     if [ $skip_install == "false" ] && ! which "$service" > /dev/null ; then
       echo "Package '$service' not found! Install? (y/n)"
-      if to_install; then
+      if ask_confirmation; then
         if ! sudo apt-get install "$service" -y &> /dev/null; then
           printf "${RED}Failed to install package $service ${NC}\n"
           skip="true"
@@ -213,7 +213,7 @@ proceed_service() {
 
       if [ -f "/var/lib/dpkg/info/$service.conffiles" ]; then
         echo "Do you want to edit it's confs files ? (y/n)"
-        if to_install; then
+        if ask_confirmation; then
           $EDITOR `cat /var/lib/dpkg/info/$service.conffiles`
         fi
       else
