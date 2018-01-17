@@ -81,6 +81,12 @@ if ! command -v screen > /dev/null; then
   sudo apt-get install screen -y > /dev/null
 fi
 
+# Install ifstat network monitoring
+if ! command -v ifstat > /dev/null; then
+  echo "Installing ifstat"
+  sudo apt-get install ifstat -y > /dev/null
+fi
+
 #########################
 # Define some functions #
 #########################
@@ -106,6 +112,14 @@ to_install () {
         * ) echo "Please answer yes or no.";;
     esac
   done
+}
+
+network_monitoring () {
+  ifstat &
+  pid=$!
+  sleep 1
+  disown
+  sudo kill -9 $pid 2> /dev/null
 }
 
 # Display a title framed
@@ -275,6 +289,10 @@ elif [ ! -z "$action" ] && [ $action == "stats" ]; then
   echo "Disk information: "
   disp " - write : " `sudo iotop -b --iter=1 | grep "Actual DISK READ" | grep -v grep | tr "|" "\n" | sed -e 's/^[[:space:]]*//' | grep READ | tr -s " " | cut -d" " -f 4-`
   disp " - read : " `sudo iotop -b --iter=1 | grep "Actual DISK READ" | grep -v grep | tr "|" "\n" | sed -e 's/^[[:space:]]*//' | grep READ | tr -s " " | cut -d" " -f 4-`
+
+  title "Network informations"
+
+  network_monitoring
 
 fi
 
