@@ -59,6 +59,7 @@ fi
 
 RED='\033[0;91m'
 GREEN='\033[0;92m'
+MAGENTA='\033[0;95m'
 BLUE='\033[0;94m'
 NC='\033[0m' # No Color
 
@@ -127,6 +128,45 @@ disp() {
   printf "${NC}"
 }
 
+# Display informations about a service
+
+getServiceFacts() {
+  daemon=$1
+  if sudo apt-cache show $daemon &> /dev/null; then
+    type=`sudo apt-cache show $daemon | grep '^Section' | cut -d ' ' -f 2 | head -n 1`
+    echo $type
+  else
+    echo "?"
+  fi
+
+  ports=""
+
+  if ps -eaf | grep "$daemon" | grep -vq grep; then
+    pids_list=`ps -eaf | grep "$daemon" | grep -v grep | tr -s " " | cut -d " " -f 2 | tr '\n' ' '`
+    pids=$(echo $pids_list | tr ";" "\n")
+    pids_list="${GREEN}${pids_list}${NC}"
+    for pid in $pids
+    do
+      ports="$ports"`sudo netstat -peanut | grep -F "$pid" | tr -s " " | cut -d " " -f 1,4 | sed 's/^/    /'`
+    done
+  else
+    pid="${RED}non launched${NC}"
+  fi
+
+  if [ -z "$ports" ];then
+    ports="    none"
+  fi
+
+  disp "  name: " "$daemon"
+  printf "  pid(s): $pids_list\n"
+  echo "  IP/ports linked:"
+
+
+  [ "$ports" == "    none" ] || printf "$MAGENTA"
+  echo "$ports"
+  [ "$ports" == "    none" ] || printf "$NC"
+}
+
 ############################
 # Real start of the script #
 ############################
@@ -153,6 +193,11 @@ if [[ ! -z "$action" ]] && [ $action == "service" ] && [ ! -z $service ]; then
 
   if [ ! $skip == "true" ]; then
     echo "Here is some facts about this program :"
+    if service_exists "$service"; then
+      getServiceFacts "$service"
+    else
+      echo "No informations found about this service .."
+    fi
 
     if [ -f "/var/lib/dpkg/info/$service.conffiles" ]; then
       echo "Do you want to edit it's confs files ? (y/n)"
@@ -173,31 +218,8 @@ elif [[ ! -z "$action" ]] && [ $action == "all" ]; then
   title "Daemons presents"
 
   service --status-all | cut -d ' ' -f 6 | while read -r daemon; do
-    if sudo apt-cache show $daemon &> /dev/null; then
-      type=`sudo apt-cache show $daemon | grep '^Section' | cut -d ' ' -f 2 | head -n 1`
-      echo $type
-    else
-      echo "?"
-    fi
 
-    ports=""
-
-    if ps -eaf | grep "$daemon" | grep -vq grep; then
-      pid=`ps -eaf | grep "$daemon" | grep -v grep | tr -s " " | cut -d " " -f 2 | tr '\n' ' '`
-      pid="${GREEN}${pid}${NC}"
-      ports=`sudo netstat -peanut | grep -F "$pid" | tr -s " " | cut -d " " -f 1,4 | sed 's/^/    /'`
-    else
-      pid="${RED}non launched${NC}"
-    fi
-
-    if [ -z "$ports" ];then
-      ports="    none"
-    fi
-
-    disp "  name: " "$daemon"
-    printf "  pid: $pid\n"
-    echo "  IP/ports linked:"
-    echo "$ports"
+    getServiceFacts "$daemon"
 
   done
 
