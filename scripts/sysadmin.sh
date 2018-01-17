@@ -5,6 +5,7 @@
 ########################
 
 CPU_LIMIT="80"
+EDITOR="${EDITOR:-vim}"
 
 usage() {
 echo """usage: $(basename $BASH_SOURCE) [-a | -st | -s <service_name>] [-c] [-l <limit>] [-h]
@@ -132,7 +133,38 @@ disp() {
 
 title "Beginning of the script"
 
-if [[ ! -z "$action" ]] && [ $action == "all" ]; then
+if [[ ! -z "$action" ]] && [ $action == "service" ] && [ ! -z $service ]; then
+
+  skip="false"
+
+  if ! which "$service" > /dev/null ; then
+    echo "Package '$service' not found! Install? (y/n)"
+    if to_install; then
+      if ! sudo apt-get install "$service" -y &> /dev/null; then
+        disp "Failed to install package " "$service"
+        skip="true"
+      else
+        echo "Package sucessfully installed"
+      fi
+    else
+      skip="true"
+    fi
+  fi
+
+  if [ ! $skip == "true" ]; then
+    echo "Here is some facts about this program :"
+
+    if [ -f "/var/lib/dpkg/info/$service.conffiles" ]; then
+      echo "Do you want to edit it's confs files ? (y/n)"
+      if to_install; then
+        $EDITOR `cat /var/lib/dpkg/info/$service.conffiles`
+      fi
+    else
+      echo "No configurations files found .."
+    fi
+  fi
+
+elif [[ ! -z "$action" ]] && [ $action == "all" ]; then
 
   ###################
   # Service listing #
@@ -141,7 +173,7 @@ if [[ ! -z "$action" ]] && [ $action == "all" ]; then
   title "Daemons presents"
 
   service --status-all | cut -d ' ' -f 6 | while read -r daemon; do
-    if sudo apt-cache show $daemon 2&>1; then
+    if sudo apt-cache show $daemon &> /dev/null; then
       type=`sudo apt-cache show $daemon | grep '^Section' | cut -d ' ' -f 2 | head -n 1`
       echo $type
     else

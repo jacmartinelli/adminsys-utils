@@ -18,6 +18,14 @@ screen -r cpuwarning
 
 > Those scripts were tested only on Ubuntu 16.04
 
+**Default text editor** for configurations files is **vim**, you can set-up another (such nano) by setting-up an environment variable called **EDITOR** like in this example :
+
+```bash
+EDITOR=nano ./sysadmin.sh -s apache2
+```
+
+> If you set another file editor, you need it to be able to edit **multiple files** simultaneously
+
 ## Vagrant
 
 A [Vagrantfile](Vagrantfile) for [Vagrant](https://www.vagrantup.com) is available to simplify test of this script (for [Virtualbox](https://www.virtualbox.org/) provider).
