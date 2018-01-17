@@ -132,7 +132,7 @@ disp() {
 
 title "Beginning of the script"
 
-if [ ! -z $actions ] && [ $action == "all" ]; then
+if [[ ! -z "$action" ]] && [ $action == "all" ]; then
 
   ###################
   # Service listing #
@@ -169,7 +169,7 @@ if [ ! -z $actions ] && [ $action == "all" ]; then
 
   done
 
-elif [ ! -z $actions ] && [ $action == "stats" ]; then
+elif [ ! -z "$action" ] && [ $action == "stats" ]; then
 
   #################
   # System config #
