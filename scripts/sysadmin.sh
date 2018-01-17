@@ -61,7 +61,7 @@ GREEN='\033[0;92m'
 BLUE='\033[0;94m'
 NC='\033[0m' # No Color
 
-VALUE="$BLUE"
+COLOR_EMPHASIS="$BLUE"
 
 #######################################
 # Install some softwares prerequisits #
@@ -121,7 +121,7 @@ title () {
 # Display key - value with colors
 
 disp() {
-  printf "${1}${VALUE}"
+  printf "${1}${COLOR_EMPHASIS}"
   echo -e "${@:2}"
   printf "${NC}"
 }
