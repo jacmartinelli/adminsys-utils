@@ -264,7 +264,7 @@ elif [[ ! -z "$action" ]] && [ $action == "all" ]; then
   read -p "> $1" service_name
 
   if [ -z "$service_name" ]; then
-    echo "Nothing entered - Skipped"
+    printf "${COLOR_EMPHASIS}Nothing entered - Skipped${NC}"
   else
     proceed_service "$service_name" "yes"
   fi

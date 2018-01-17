@@ -16,7 +16,6 @@ Other options:
   -l / --cpu-limit <limit>        Set the CPU limit for warn of load (1-99). Set
                                   this setting enable cpu monitoring
   -h / --help                     Display this message
-
 ```
 
 ## Explanations
