@@ -14,8 +14,7 @@ Options (only choose one):
                                   configure it
   -st / --stats                   Show some system stats, and start cpu warning
                                   monitoring
-  -a / --all                      Show all services, and permit to configure
-                                  them
+  -a / --all                      Show all services, and their characteristics
 
 Other options:
   -c / --cpu-monitoring           Launch the CPU monitoring daemon
@@ -133,7 +132,7 @@ disp() {
 
 title "Beginning of the script"
 
-if [ $action == "all" ]; then
+if [ ! -z $actions ] && [ $action == "all" ]; then
 
   ###################
   # Service listing #
@@ -170,7 +169,7 @@ if [ $action == "all" ]; then
 
   done
 
-elif [ $action == "stats" ]; then
+elif [ ! -z $actions ] && [ $action == "stats" ]; then
 
   #################
   # System config #
@@ -202,7 +201,7 @@ elif [ $action == "stats" ]; then
 
 fi
 
-if [ $cpu_mon == "yes" ]; then
+if [ ! -z $CPU_LIMIT ] && [ $cpu_mon == "yes" ]; then
 
   ###############
   # Cpu warning #
