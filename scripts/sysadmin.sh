@@ -191,13 +191,14 @@ if [[ ! -z "$action" ]] && [ $action == "service" ] && [ ! -z $service ]; then
     fi
   fi
 
+  if service_exists "$service"; then
+    echo "Here is some facts about this service :"
+    getServiceFacts "$service"
+  else
+    echo "No service found with this name .."
+  fi
+
   if [ ! $skip == "true" ]; then
-    echo "Here is some facts about this program :"
-    if service_exists "$service"; then
-      getServiceFacts "$service"
-    else
-      echo "No informations found about this service .."
-    fi
 
     if [ -f "/var/lib/dpkg/info/$service.conffiles" ]; then
       echo "Do you want to edit it's confs files ? (y/n)"
@@ -205,8 +206,9 @@ if [[ ! -z "$action" ]] && [ $action == "service" ] && [ ! -z $service ]; then
         $EDITOR `cat /var/lib/dpkg/info/$service.conffiles`
       fi
     else
-      echo "No configurations files found .."
+      echo "No configurations files found for this package .."
     fi
+
   fi
 
 elif [[ ! -z "$action" ]] && [ $action == "all" ]; then
