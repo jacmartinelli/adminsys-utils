@@ -8,13 +8,12 @@ CPU_LIMIT="80"
 EDITOR="${EDITOR:-vim}"
 
 usage() {
-echo """usage: $(basename $BASH_SOURCE) [-a | -st | -s <service_name>] [-c] [-l <limit>] [-h]
+echo """usage: $(basename $BASH_SOURCE) [-a | -i | -s <service_name>] [-c] [-l <limit>] [-h]
 
 Options (only choose one):
   -s / --service <service_name>   Permet to check a service existance, and / or
                                   configure it
-  -st / --stats                   Show some system stats, and start cpu warning
-                                  monitoring
+  -i / --info                     Show some global system stats
   -a / --all                      Show all services, and their characteristics
 
 Other options:
@@ -31,7 +30,7 @@ while true ; do
     case "$1" in
          -a|--all) action="all";
                 shift;;
-         -st|--stats) action="stats";
+         -i|--info) action="info";
                 shift;;
          -c|--cpu-monitoring) cpu_mon="yes";
                 shift;;
@@ -274,7 +273,7 @@ elif [[ ! -z "$action" ]] && [ $action == "all" ]; then
 # System config #
 #################
 
-elif [ ! -z "$action" ] && [ $action == "stats" ]; then
+elif [ ! -z "$action" ] && [ $action == "info" ]; then
 
   title "Machine informations"
 

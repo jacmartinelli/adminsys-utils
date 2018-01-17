@@ -3,13 +3,12 @@
 ## Usage
 
 ```
-usage: sysadmin.sh [-a | -st | -s <service_name>] [-c] [-l <limit>] [-h]
+usage: sysadmin.sh [-a | -i | -s <service_name>] [-c] [-l <limit>] [-h]
 
 Options (only choose one):
   -s / --service <service_name>   Permet to check a service existance, and / or
                                   configure it
-  -st / --stats                   Show some system stats, and start cpu warning
-                                  monitoring
+  -i / --info                     Show some global system stats
   -a / --all                      Show all services, and their characteristics
 
 Other options:
@@ -17,6 +16,7 @@ Other options:
   -l / --cpu-limit <limit>        Set the CPU limit for warn of load (1-99). Set
                                   this setting enable cpu monitoring
   -h / --help                     Display this message
+
 ```
 
 ## Explanations
