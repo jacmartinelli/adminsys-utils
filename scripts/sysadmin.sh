@@ -4,8 +4,10 @@
 # Parse option program #
 ########################
 
+CPU_LIMIT="80"
+
 usage() {
-echo """usage: $(basename $BASH_SOURCE) [-a | -st | -s <service_name>] [-h]
+echo """usage: $(basename $BASH_SOURCE) [-a | -st | -s <service_name>] [-c] [-l <limit>] [-h]
 
 Options (only choose one):
   -s / --service <service_name>   Permet to check a service existance, and / or
@@ -16,10 +18,14 @@ Options (only choose one):
                                   them
 
 Other options:
+  -c / --cpu-monitoring           Launch the CPU monitoring daemon
+  -l / --cpu-limit <limit>        Set the CPU limit for warn of load (1-99). Set
+                                  this setting enable cpu monitoring
   -h / --help                     Display this message"""
 }
 
 action=""
+cpu_mon="false"
 
 while true ; do
     case "$1" in
@@ -27,15 +33,21 @@ while true ; do
                 shift;;
          -st|--stats) action="stats";
                 shift;;
+         -c|--cpu-monitoring) cpu_mon="yes";
+                shift;;
          -s|--service) action="service"
                 service="${2}"
+                shift 1;
+                shift 1;;
+         -l|--cpu-limit) cpu_mon="yes";
+                CPU_LIMIT="${2}"
                 shift 1;
                 shift 1;;
          *) shift; break;;
     esac
 done
 
-if [ -z "${action}" ] || [[ $action == "service" && -z "${service}" ]]; then
+if [ -z "${action}" ] || [[ $action == "service" && -z "${service}" ]] && [[ $cpu_mon == "false" || -z "$CPU_LIMIT" ]]; then
    usage
    exit 0
 fi
@@ -51,8 +63,6 @@ BLUE='\033[0;94m'
 NC='\033[0m' # No Color
 
 VALUE="$BLUE"
-
-CPU_LIMIT="80"
 
 #######################################
 # Install some softwares prerequisits #
@@ -189,6 +199,10 @@ elif [ $action == "stats" ]; then
   echo "Disk information: "
   disp " - write : " `sudo iotop -b --iter=1 | grep "Actual DISK READ" | grep -v grep | tr "|" "\n" | sed -e 's/^[[:space:]]*//' | grep READ | tr -s " " | cut -d" " -f 4-`
   disp " - read : " `sudo iotop -b --iter=1 | grep "Actual DISK READ" | grep -v grep | tr "|" "\n" | sed -e 's/^[[:space:]]*//' | grep READ | tr -s " " | cut -d" " -f 4-`
+
+fi
+
+if [ $cpu_mon == "yes" ]; then
 
   ###############
   # Cpu warning #
