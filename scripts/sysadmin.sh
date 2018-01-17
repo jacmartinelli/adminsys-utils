@@ -99,7 +99,7 @@ service_exists () {
 
 to_install () {
   while true; do
-    read -p "$1" yn
+    read -p "> $1" yn
     case $yn in
         [Yy]* ) return 0;;
         [Nn]* ) return 1;;
@@ -167,6 +167,49 @@ getServiceFacts() {
   [ "$ports" == "    none" ] || printf "$NC"
 }
 
+proceed_service() {
+
+    service="$1"
+    skip_install="${2:-false}"
+
+    skip="false"
+
+    if [ $skip_install == "false" ] && ! which "$service" > /dev/null ; then
+      echo "Package '$service' not found! Install? (y/n)"
+      if to_install; then
+        if ! sudo apt-get install "$service" -y &> /dev/null; then
+          disp "Failed to install package " "$service"
+          skip="true"
+        else
+          echo "Package sucessfully installed"
+        fi
+      else
+        skip="true"
+      fi
+    fi
+
+    if service_exists "$service"; then
+      echo "Here is some facts about this service :"
+      getServiceFacts "$service"
+    else
+      echo "No service found with this name .."
+    fi
+
+    if [ ! $skip == "true" ]; then
+
+      if [ -f "/var/lib/dpkg/info/$service.conffiles" ]; then
+        echo "Do you want to edit it's confs files ? (y/n)"
+        if to_install; then
+          $EDITOR `cat /var/lib/dpkg/info/$service.conffiles`
+        fi
+      else
+        echo "No configurations files found for this package .."
+      fi
+
+    fi
+
+}
+
 ################################
 ################################
 ### Real start of the script ###
@@ -181,41 +224,7 @@ title "Beginning of the script"
 
 if [[ ! -z "$action" ]] && [ $action == "service" ] && [ ! -z $service ]; then
 
-  skip="false"
-
-  if ! which "$service" > /dev/null ; then
-    echo "Package '$service' not found! Install? (y/n)"
-    if to_install; then
-      if ! sudo apt-get install "$service" -y &> /dev/null; then
-        disp "Failed to install package " "$service"
-        skip="true"
-      else
-        echo "Package sucessfully installed"
-      fi
-    else
-      skip="true"
-    fi
-  fi
-
-  if service_exists "$service"; then
-    echo "Here is some facts about this service :"
-    getServiceFacts "$service"
-  else
-    echo "No service found with this name .."
-  fi
-
-  if [ ! $skip == "true" ]; then
-
-    if [ -f "/var/lib/dpkg/info/$service.conffiles" ]; then
-      echo "Do you want to edit it's confs files ? (y/n)"
-      if to_install; then
-        $EDITOR `cat /var/lib/dpkg/info/$service.conffiles`
-      fi
-    else
-      echo "No configurations files found for this package .."
-    fi
-
-  fi
+  proceed_service "$service"
 
 ###################
 # Service listing #
@@ -230,6 +239,16 @@ elif [[ ! -z "$action" ]] && [ $action == "all" ]; then
     getServiceFacts "$daemon"
 
   done
+
+  echo ""
+  echo "Do you want to configure one service ? (empty is none)"
+  read -p "> $1" service_name
+
+  if [ -z "$service_name" ]; then
+    echo "Nothing entered - Skipped"
+  else
+    proceed_service "$service_name" "yes"
+  fi
 
 #################
 # System config #
@@ -281,7 +300,7 @@ fi
 
 #########################
 #########################
-### end of the script ###
+### End of the script ###
 #########################
 #########################
 
