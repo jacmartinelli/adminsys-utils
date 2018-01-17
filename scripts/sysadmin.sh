@@ -167,11 +167,17 @@ getServiceFacts() {
   [ "$ports" == "    none" ] || printf "$NC"
 }
 
-############################
-# Real start of the script #
-############################
+################################
+################################
+### Real start of the script ###
+################################
+################################
 
 title "Beginning of the script"
+
+####################
+# Service specific #
+####################
 
 if [[ ! -z "$action" ]] && [ $action == "service" ] && [ ! -z $service ]; then
 
@@ -211,11 +217,11 @@ if [[ ! -z "$action" ]] && [ $action == "service" ] && [ ! -z $service ]; then
 
   fi
 
-elif [[ ! -z "$action" ]] && [ $action == "all" ]; then
+###################
+# Service listing #
+###################
 
-  ###################
-  # Service listing #
-  ###################
+elif [[ ! -z "$action" ]] && [ $action == "all" ]; then
 
   title "Daemons presents"
 
@@ -225,11 +231,11 @@ elif [[ ! -z "$action" ]] && [ $action == "all" ]; then
 
   done
 
-elif [ ! -z "$action" ] && [ $action == "stats" ]; then
+#################
+# System config #
+#################
 
-  #################
-  # System config #
-  #################
+elif [ ! -z "$action" ] && [ $action == "stats" ]; then
 
   title "Machine informations"
 
@@ -242,10 +248,6 @@ elif [ ! -z "$action" ] && [ $action == "stats" ]; then
   disp "  - CPU number : " `nproc`
   disp "  - Total ram : " `cat /proc/meminfo | grep "MemTotal:" | tr -s " " | cut -d" " -f2,3`
 
-  #########################
-  # Current machine state #
-  #########################
-
   title "Machine current state"
 
   disp "Current cpu usage: " `grep 'cpu ' /proc/stat | awk '{usage=($2+$4)*100/($2+$4+$5)} END {print usage "%"}'`
@@ -257,11 +259,11 @@ elif [ ! -z "$action" ] && [ $action == "stats" ]; then
 
 fi
 
-if [ ! -z $CPU_LIMIT ] && [ $cpu_mon == "yes" ]; then
+###############
+# Cpu warning #
+###############
 
-  ###############
-  # Cpu warning #
-  ###############
+if [ ! -z $CPU_LIMIT ] && [ $cpu_mon == "yes" ]; then
 
   title "CPU monitoring"
 
@@ -277,8 +279,10 @@ if [ ! -z $CPU_LIMIT ] && [ $cpu_mon == "yes" ]; then
 
 fi
 
-##################
-# End of program #
-##################
+#########################
+#########################
+### end of the script ###
+#########################
+#########################
 
 title "End of program"
