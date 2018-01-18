@@ -86,10 +86,16 @@ if ! command -v ifstat > /dev/null; then
   sudo apt-get install ifstat -y > /dev/null
 fi
 
-# Install samba for shared folders
+# Install samba server for shared folders
 if ! command -v samba > /dev/null; then
-  echo "Installing samba server and client"
-  sudo apt-get install samba smbclient -y > /dev/null
+  echo "Installing samba server"
+  sudo apt-get install samba -y > /dev/null
+fi
+
+# Install samba client
+if ! command -v smbclient > /dev/null; then
+  echo "Installing samba client"
+  sudo apt-get install smbclient -y > /dev/null
 fi
 
 #########################
