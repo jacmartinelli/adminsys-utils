@@ -131,6 +131,8 @@ ask_confirmation () {
   done
 }
 
+# Get some network stats for real time io
+
 network_monitoring () {
   ifstat &
   pid=$!
@@ -197,6 +199,8 @@ getServiceFacts() {
   echo "$ports"
   [ "$ports" == "    none" ] || printf "$NC"
 }
+
+# Get informations about a package / service
 
 proceed_service() {
 
