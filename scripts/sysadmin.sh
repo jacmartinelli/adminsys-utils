@@ -68,6 +68,12 @@ COLOR_EMPHASIS="$BLUE"
 # Install some softwares prerequisits #
 #######################################
 
+# Install vim..
+if ! command -v vim > /dev/null; then
+  echo "Installing vim"
+  sudo apt-get install vim -y > /dev/null
+fi
+
 # Install iotop for IO disk checking
 if ! command -v iotop > /dev/null; then
   echo "Installing htop"
